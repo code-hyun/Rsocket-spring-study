@@ -1,10 +1,9 @@
 package com.rsocket.server.controller;
 
+import com.rsocket.server.repository.Message;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
-import com.rsocket.server.repository.Message;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
@@ -27,9 +26,13 @@ public class RsocketController {
     // 3. Stream
     @MessageMapping("stream")
     Flux<Message> stream(Message req){
-        return Flux.interval(Duration.ofSeconds(1)).map(i -> new Message("superil","server"));
+        return Flux.interval(Duration.ofSeconds(1)).map(i -> new Message("superpil","server"));
     }
     // 4. Channel
-    @MessageMapping
-    Flux<Message> channel(final Flux<Duration>)
+    @MessageMapping("channel")
+    Flux<Message> channel(final Flux<Duration> settings){
+        log.info("settings : {}", settings);
+        return settings.doOnNext(setting -> log.info("Frequency setting is {} second(s).", setting.getSeconds()))
+                .switchMap(setting -> Flux.interval(setting).map(index -> new Message("superpil", "server")));
+    }
 }

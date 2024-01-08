@@ -6,11 +6,11 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 public class Message {
-    private String userName;
+    private String username;
     private String message;
 
-    public Message(String userName, String message){
-        this.userName = userName;
+    public Message(String username, String message){
+        this.username = username;
         this.message = message;
     }
 }
