@@ -1,6 +1,0 @@
-spring:
-  rsocket:
-    server:
-      port: 7000
-      transport: tcp
-      address: localhost
