@@ -33,15 +33,15 @@ public class ClientRun {
 //            monoReqRes();
 
             // 예제: fire-and-forget 메소드 호출
-            fireAndForget();
-            Monofaf();
+//            fireAndForget();
+//            Monofaf();
 
             // 예제: stream 메소드 호출
 //            stream();
-            fluxStream();
+//            fluxStream();
 
             // 예제: channel 메소드 호출
-//            channel();
+            channel();
 
             // 프로그램 종료 전에 잠시 대기
             Thread.sleep(5000);
@@ -126,14 +126,19 @@ public class ClientRun {
 
     // channel 메소드
     private void channel() {
-        // 채널 요청을 보낼 Flux 생성 (예: 간격 설정)
+        // 채널 요청을 보낼 Flux 생성 - 간격 설정 1초씩 interval
         Flux<Long> settingsFlux = Flux.interval(Duration.ofSeconds(1));
-
         // RSocket 채널 생성 및 설정된 간격으로 메시지 전송
         rSocketRequester.route("channel")
                 .data(settingsFlux, Long.class)  // Flux<Long>으로 변경
                 .retrieveFlux(Message.class)
-                .subscribe(response -> System.out.println("Received from channel: " + response));
+//                .take(300)// message 수신
+                // retrieveFlux로 반환된 Flux<Message>에 적용
+                .subscribe( // => message 올때 마다 subscribe 실행
+                        response -> System.out.println("Received from channel: " + response),
+                        error -> System.out.println("error :" + error),
+                        () -> System.out.println("완료")
+                    );
 
         // 잠시 기다림
         try {
@@ -142,6 +147,8 @@ public class ClientRun {
             e.printStackTrace();
         }
     }
+
+
     private byte[] toPrimitiveByteArray(Byte[] byteObjects) {
         byte[] bytes = new byte[byteObjects.length];
         int i = 0;

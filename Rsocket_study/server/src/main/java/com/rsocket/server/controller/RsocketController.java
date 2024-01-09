@@ -89,8 +89,15 @@ public class RsocketController {
         // Flux<Duration>를 통해 설정 보내고, 서버는 해당 설정에 따른 메세지를 생성 응답한다
         log.info("settings : {}", settings);
         return settings.doOnNext(setting -> log.info("Frequency setting is {} second(s).", setting.getSeconds()))
+                .take(20)
+
                 .switchMap(setting -> Flux.interval(setting).map(index -> new Message("Test", "server")));
     }
+
+
+
+
+
 
 
     private Byte[] toByteObjectArray(byte[] byteArray) {
