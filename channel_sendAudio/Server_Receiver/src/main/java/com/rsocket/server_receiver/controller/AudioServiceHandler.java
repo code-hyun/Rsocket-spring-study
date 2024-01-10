@@ -2,6 +2,7 @@ package com.rsocket.server_receiver.controller;
 
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
@@ -21,17 +22,19 @@ public class AudioServiceHandler {
     private boolean isHeaderProcessed = false;
 
     @MessageMapping("audioSend")
-    public Flux<String> receiveAudioStream(Flux<byte[]> audioStream ) {
-        Path outPutPath = Path.of("/Users/ailak/Desktop/Rsocket/Rsocket-spring-study/channel_sendAudio/Server_Receiver/src/main/resources/audio/test.wav");
+    public Flux<String> receiveAudioStream(/*@Header("metadata") ByteBuf metadata,*/Flux<byte[]> audioStream) {
+//        Path outPutPath = Path.of("/Users/ailak/Desktop/Rsocket/Rsocket-spring-study/channel_sendAudio/Server_Receiver/src/main/resources/audio/test.wav");
+        Path outPutPath = Path.of("D:\\01. project\\Rsocket-spring-study\\channel_sendAudio\\Server_Receiver\\src\\main\\resources\\audio\\test.wav");
+//        String headerJson = metadata.toString(StandardCharsets.UTF_8);
+//        log.info("Received header: {}", headerJson);
+//        metadata.release();
 
         return audioStream.flatMap(data -> {
-            if (!isHeaderProcessed) {
-                // 헤더 데이터 처리
-                String headerJson = new String(data, StandardCharsets.UTF_8);
-                log.info("Received header: {}", headerJson);
-                isHeaderProcessed = true;
-                return Flux.just("Header processed");
-            } else {
+//            if (!isHeaderProcessed) {
+//                // 헤더 데이터 처리
+//                isHeaderProcessed = true;
+//                return Flux.just("Header processed");
+//            } else {
                 try(BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outPutPath.toFile()))){
                     byte[] byteChunk = data;
                     bos.write(byteChunk);
@@ -40,14 +43,16 @@ public class AudioServiceHandler {
                     if(data.length < 320){
 
                         return Flux.just("finalize");
+                    }else{
+                        return Flux.just(data.length + "byte receive success");
                     }
                 }catch (IOException e){
                     return Mono.error(e);
                 }
                 // 오디오 데이터 처리
                 // 예: 파일로 저장, 변환 등
-                return Flux.just("Received " + data.length + " bytes");
-            }
+//                return Flux.just("Received " + data.length + " bytes");
+//            }
         });
     }
 }
